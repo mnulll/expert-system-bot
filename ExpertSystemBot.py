@@ -16,7 +16,7 @@ print(API_KEY)
 bot = telebot.TeleBot(API_KEY)
 counter = 1
 quiz = 1
-mark = 1
+mark = 0
 flag = True
 
 
@@ -30,9 +30,19 @@ def quiz_increment():
     quiz += 1
 
 
+def quiz_reset():
+    global quiz
+    quiz = 1
+
+
 def mark_increment():
     global mark
     mark += 1
+
+
+def mark_reset():
+    global mark
+    mark = 0
 
 
 def question(message):
@@ -40,14 +50,28 @@ def question(message):
     Class = f'Class{str(counter)}'
     question_turn = f'q{str(quiz)}'
     ans_choice = Quiz["Choice"][Class][question_turn].split(",")
-    reply_board = types.ReplyKeyboardMarkup()
-    choice_1 = types.KeyboardButton("/"+ans_choice[0])
-    choice_2 = types.KeyboardButton("/"+ans_choice[1])
-    choice_3 = types.KeyboardButton("/"+ans_choice[2])
-    choice_4 = types.KeyboardButton("/"+ans_choice[3])
-    reply_board.add(choice_1, choice_2, choice_3, choice_4)
-    bot.reply_to(message, Quiz["Question"][Class]
+    str_ans_choice = ""
+    if len(ans_choice) == 4:
+        str_ans_choice = "Answer:\n\n" + \
+            ans_choice[0]+"\n\n"+ans_choice[1]+"\n\n" + \
+            ans_choice[2]+"\n\n"+ans_choice[3]
+        reply_board = types.ReplyKeyboardMarkup()
+        choice_1 = types.KeyboardButton("/"+ans_choice[0][0])
+        choice_2 = types.KeyboardButton("/"+ans_choice[1][0])
+        choice_3 = types.KeyboardButton("/"+ans_choice[2][0])
+        choice_4 = types.KeyboardButton("/"+ans_choice[3][0])
+        reply_board.add(choice_1, choice_2, choice_3, choice_4)
+    else:
+        str_ans_choice = "Answer:\n\n" + \
+            ans_choice[0]+"\n\n"+ans_choice[1]+"\n\n"
+        reply_board = types.ReplyKeyboardMarkup()
+        choice_1 = types.KeyboardButton("/"+ans_choice[0][0])
+        choice_2 = types.KeyboardButton("/"+ans_choice[1][0])
+        reply_board.add(choice_1, choice_2)
+
+    bot.reply_to(message, "Question:\n\n"+Quiz["Question"][Class]
                  [question_turn], reply_markup=reply_board)
+    bot.reply_to(message, str_ans_choice)
     bot.register_next_step_handler(message, answer)
 
 
@@ -55,7 +79,8 @@ def answer(message):
     Class = f'Class{str(counter)}'
     question_turn = f'q{str(quiz)}'
     reply_board = types.ReplyKeyboardRemove(selective=False)
-    ans = str(message.text)[1:]
+    ans = str(message.text)[1]
+    print(ans)
     reply_board = types.ReplyKeyboardMarkup()
     next = types.KeyboardButton("Next Question")
     reply_board.add(next)
@@ -64,11 +89,33 @@ def answer(message):
         bot.reply_to(message, "correct", reply_markup=reply_board)
     else:
         bot.reply_to(message, "wrong", reply_markup=reply_board)
-    if quiz < 2:
+    if quiz < 10:
         quiz_increment()
         bot.register_next_step_handler(message, question)
     else:
-        bot.reply_to(message, quiz)
+        if mark >= 7:
+            mark_reset()
+            quiz_reset()
+            ctr()
+            reply_board = types.ReplyKeyboardRemove(selective=False)
+            bot.reply_to(message, quiz)
+            reply_board = types.ReplyKeyboardMarkup()
+            itemYes = types.KeyboardButton("/Ready")
+            itemNo = types.KeyboardButton("/Not_Ready")
+            reply_board.add(itemYes, itemNo)
+            bot.reply_to(
+                message, "You passed. Are you ready for next class? ", reply_markup=reply_board)
+        else:
+            mark_reset()
+            quiz_reset()
+            reply_board = types.ReplyKeyboardRemove(selective=False)
+            bot.reply_to(message, quiz)
+            reply_board = types.ReplyKeyboardMarkup()
+            itemYes = types.KeyboardButton("/Ready")
+            itemNo = types.KeyboardButton("/Not_Ready")
+            reply_board.add(itemYes, itemNo)
+            bot.reply_to(
+                message, "You failed. You need to repeat the class. Are you ready? ", reply_markup=reply_board)
 
 
 def getTime():
@@ -111,6 +158,7 @@ def greet(message):
             reply_board.add(itemUnderstand, itemQuiz)
             bot.send_message(
                 message.chat.id, "Tell me if you don't understand but if you understand we shall proceed to the quiz", reply_markup=reply_board)
+            reply_board = types.ReplyKeyboardRemove(selective=False)
 
             @ bot.message_handler(commands=['Dont_Understand'])
             def send_youtube(message):
@@ -126,8 +174,12 @@ def greet(message):
 
             @ bot.message_handler(commands=['Proceed_To_Quiz'])
             def send_quiz(message):
-
-                reply_board = types.ReplyKeyboardRemove(selective=False)
+                reply_board = types.ReplyKeyboardMarkup()
+                itemYes = types.KeyboardButton("/Ready")
+                itemNo = types.KeyboardButton("/Not_Ready")
+                reply_board.add(itemYes, itemNo)
+                bot.send_message(message.chat.id, "Are you ready",
+                                 reply_markup=reply_board)
                 bot.register_next_step_handler(message, question)
 
         @bot.message_handler(commands=['Not_Ready'])
