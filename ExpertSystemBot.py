@@ -49,7 +49,7 @@ def question(message):
 
     Class = f'Class{str(counter)}'
     question_turn = f'q{str(quiz)}'
-    ans_choice = Quiz["Choice"][Class][question_turn].split(",")
+    ans_choice = Quiz["Choice"][Class][question_turn].split("/")
     str_ans_choice = ""
     if len(ans_choice) == 4:
         str_ans_choice = "Answer:\n\n" + \
@@ -94,17 +94,21 @@ def answer(message):
         bot.register_next_step_handler(message, question)
     else:
         if mark >= 7:
-            mark_reset()
-            quiz_reset()
-            ctr()
-            reply_board = types.ReplyKeyboardRemove(selective=False)
-            bot.reply_to(message, quiz)
-            reply_board = types.ReplyKeyboardMarkup()
-            itemYes = types.KeyboardButton("/Ready")
-            itemNo = types.KeyboardButton("/Not_Ready")
-            reply_board.add(itemYes, itemNo)
-            bot.reply_to(
-                message, "You passed. Are you ready for next class? ", reply_markup=reply_board)
+            if counter == 10:
+                bot.reply.to(
+                    message, "You passed the course, Congratulations!")
+            else:
+                mark_reset()
+                quiz_reset()
+                ctr()
+                reply_board = types.ReplyKeyboardRemove(selective=False)
+                bot.reply_to(message, quiz)
+                reply_board = types.ReplyKeyboardMarkup()
+                itemYes = types.KeyboardButton("/Ready")
+                itemNo = types.KeyboardButton("/Not_Ready")
+                reply_board.add(itemYes, itemNo)
+                bot.reply_to(
+                    message, "You passed. Are you ready for next class? ", reply_markup=reply_board)
         else:
             mark_reset()
             quiz_reset()
@@ -163,14 +167,37 @@ def greet(message):
             @ bot.message_handler(commands=['Dont_Understand'])
             def send_youtube(message):
                 links = {
-                    "Class1": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-                    "Class2": "https://www.youtube.com/watch?v=2zNSgSzhBfM",
+                    "Class1": "https://youtu.be/2ePf9rue1Ao",
+                    "Class2": "https://youtu.be/XO6SV0Mup1E",
+                    "Class3": "https://youtu.be/5OJv6iHMtVw",
+                    "Class4": "https://youtu.be/PzEWHH2v3TE",
+                    "Class5": "https://youtu.be/9-8Js62wzQs",
+                    "Class6": "https://youtu.be/CMrHM8a3hqw",
+                    "Class7": "https://youtu.be/oAVIf9z62CQ",
+                    "Class8": " https://youtu.be/z-EtmaFJieY",
+                    "Class9": "https://youtu.be/DKSZHN7jftI",
+                    "Class10": "https://youtu.be/yCXm5cgG0UA"
                 }
                 material = f'Class{str(counter)}'
                 bot.send_message(message.chat.id, links[material])
+                reply_board = types.ReplyKeyboardMarkup()
+                itemFAQ = types.KeyboardButton("/FAQ")
+                itemQuiz = types.KeyboardButton("/Proceed_To_Quiz")
+                reply_board.add(itemFAQ, itemQuiz)
                 bot.send_message(
-                    message.chat.id, "If you understand we shall proceed to the quiz")
+                    message.chat.id, "If you understand we shall proceed to the quiz or you can look up to FAQ before that", reply_markup=reply_board)
+                reply_board = types.ReplyKeyboardRemove(selective=False)
                 print(counter)
+
+            @bot.message_handler(commands="FAQ")
+            def send_faq(message):
+                Class = Class = f'Class{str(counter)}'
+                faq = Quiz["FAQ"][Class]
+                reply_board = types.ReplyKeyboardMarkup()
+                itemQuiz = types.KeyboardButton("/Proceed_To_Quiz")
+                reply_board.add(itemQuiz)
+                bot.send_message(message.chat.id, faq,
+                                 reply_markup=reply_board)
 
             @ bot.message_handler(commands=['Proceed_To_Quiz'])
             def send_quiz(message):
