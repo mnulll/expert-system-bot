@@ -101,7 +101,7 @@ Quiz = {"Question": {
     }
 },
     "FAQ": {
-    "Class1": "What is the",
+    "Class1": "What is Artificial Intelligence?/-->Artificial intelligence is intelligence demonstrated by machines, unlike the natural intelligence displayed by humans and animals, which involves consciousness and emotionality./Who started AI?/-->Started by Alan Turing in 1950’s when he invented the Turing Test.The term “Artificial Intelligence ” was started by John McCarthy in 1956./What is the Turing Test?/-->The Turing test, originally called the imitation game by Alan Turing in 1950, is a test of a machine's ability to exhibit intelligent behaviour equivalent to, or indistinguishable from, that of a human./How AI can help humans?/-->Taking over dangerous and repetitive job/-->Improvement in our daily life/-->Less time taken for services at any level of job",
     "Class2": "Who is the",
     "Class3": "How.."
 }

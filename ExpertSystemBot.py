@@ -60,7 +60,8 @@ def question(message):
         choice_2 = types.KeyboardButton("/"+ans_choice[1][0])
         choice_3 = types.KeyboardButton("/"+ans_choice[2][0])
         choice_4 = types.KeyboardButton("/"+ans_choice[3][0])
-        reply_board.add(choice_1, choice_2, choice_3, choice_4)
+        reply_board.row(choice_1, choice_2)
+        reply_board.row(choice_3, choice_4)
     else:
         str_ans_choice = "Answer:\n\n" + \
             ans_choice[0]+"\n\n"+ans_choice[1]+"\n\n"
@@ -192,12 +193,13 @@ def greet(message):
             @bot.message_handler(commands="FAQ")
             def send_faq(message):
                 Class = Class = f'Class{str(counter)}'
-                faq = Quiz["FAQ"][Class]
+                faq = Quiz["FAQ"][Class].split("/")
                 reply_board = types.ReplyKeyboardMarkup()
                 itemQuiz = types.KeyboardButton("/Proceed_To_Quiz")
                 reply_board.add(itemQuiz)
-                bot.send_message(message.chat.id, faq,
-                                 reply_markup=reply_board)
+                for i in faq:
+                    bot.send_message(message.chat.id, i,
+                                     reply_markup=reply_board)
 
             @ bot.message_handler(commands=['Proceed_To_Quiz'])
             def send_quiz(message):
